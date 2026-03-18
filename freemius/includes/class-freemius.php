@@ -11247,6 +11247,10 @@
          * @return bool
          */
         function is_premium() {
+            if ( defined( 'WCUSAGE_UNLOCK_ALL_FEATURES' ) && WCUSAGE_UNLOCK_ALL_FEATURES && 'woo-coupon-usage' === $this->get_slug() ) {
+                return true;
+            }
+
             /**
              * `$this->_plugin` will be `false` when `is_activation_mode` calls this method directly from the
              * `register_constructor_hooks` method.
@@ -20885,6 +20889,10 @@
          * @return bool
          */
         function can_use_premium_code() {
+            if ( defined( 'WCUSAGE_UNLOCK_ALL_FEATURES' ) && WCUSAGE_UNLOCK_ALL_FEATURES && 'woo-coupon-usage' === $this->get_slug() ) {
+                return true;
+            }
+
             return $this->is_trial() || $this->has_features_enabled_license();
         }
 
