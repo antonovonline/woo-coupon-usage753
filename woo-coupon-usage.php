@@ -19,6 +19,10 @@
 if ( !defined( 'ABSPATH' ) ) {
     exit;
 }
+
+if ( !defined( 'WCUSAGE_UNLOCK_ALL_FEATURES' ) ) {
+    define( 'WCUSAGE_UNLOCK_ALL_FEATURES', true );
+}
 // Define plugin version constant
 if ( !defined( 'WCUSAGE_VERSION' ) ) {
     define( 'WCUSAGE_VERSION', '7.2.3' );
@@ -471,6 +475,14 @@ if ( function_exists( 'wcu_fs' ) ) {
     }
 
     function wcusage_fs_is_submenu_visible(  $is_visible, $submenu_id  ) {
+        if ( defined( 'WCUSAGE_UNLOCK_ALL_FEATURES' ) && WCUSAGE_UNLOCK_ALL_FEATURES ) {
+            if ( in_array( $submenu_id, array( 'pricing', 'contact' ), true ) ) {
+                return false;
+            }
+
+            return $is_visible;
+        }
+
         $pro = wcu_fs()->can_use_premium_code();
         $trial = wcu_fs()->is_trial();
         if ( $submenu_id == "contact" ) {
@@ -516,7 +528,7 @@ if ( function_exists( 'wcu_fs' ) ) {
             // Delete the transient so the redirect only happens once
             delete_transient( 'wcusage_activation_redirect' );
             // If Freemius opt-in is still pending, show the Freemius connect screen first.
-            if ( function_exists( 'wcu_fs' ) ) {
+            if ( !( defined( 'WCUSAGE_UNLOCK_ALL_FEATURES' ) && WCUSAGE_UNLOCK_ALL_FEATURES ) && function_exists( 'wcu_fs' ) ) {
                 $fs = wcu_fs();
                 $optin_pending = false;
                 if ( method_exists( $fs, 'is_registered' ) && method_exists( $fs, 'is_anonymous' ) ) {
@@ -548,6 +560,9 @@ if ( function_exists( 'wcu_fs' ) ) {
         // Only gate our plugin pages.
         $page = ( isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '' );
         if ( !in_array( $page, array('wcusage_settings', 'wcusage_setup'), true ) ) {
+            return;
+        }
+        if ( defined( 'WCUSAGE_UNLOCK_ALL_FEATURES' ) && WCUSAGE_UNLOCK_ALL_FEATURES ) {
             return;
         }
         $fs = wcu_fs();
